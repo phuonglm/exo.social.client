@@ -16,25 +16,15 @@
  */
 package org.exoplatform.social.client.api.model;
 
-import static org.exoplatform.social.client.api.util.SocialHttpClientSupport.handleError;
-
-import org.apache.http.HttpResponse;
 import org.exoplatform.social.client.api.SocialClientLibException;
-import org.exoplatform.social.client.api.net.SocialHttpClientException;
-import org.exoplatform.social.client.api.net.SocialHttpClient.POLICY;
 import org.exoplatform.social.client.api.service.ActivityService;
-import org.exoplatform.social.client.api.service.IdentityService;
-import org.exoplatform.social.client.api.service.QueryParams;
 import org.exoplatform.social.client.api.service.ServiceException;
-import org.exoplatform.social.client.core.ClientServiceFactoryHelper;
-import org.exoplatform.social.client.core.service.QueryParamsImpl;
-import org.exoplatform.social.client.api.util.SocialHttpClientSupport;
 import org.exoplatform.social.client.api.util.SocialJSONDecodingSupport;
+import org.exoplatform.social.client.core.service.util.ServiceUtils;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +37,7 @@ import java.util.Map;
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since May 19, 2011
  */
-public class RestActivity extends Model {
+public class RestActivity extends BaseModel {
   
   /**
    * The logger
@@ -374,15 +364,10 @@ public class RestActivity extends Model {
     String posterIdentityString = getFieldAsString(Field.POSTER_IDENTITY.toString());
     RestIdentity restIdentity = null;
 
-    if (posterIdentityString != null && posterIdentityString.length() > 2) {
-      try{
-        restIdentity = SocialJSONDecodingSupport.parser(RestIdentity.class, posterIdentityString);
-      } catch (Exception e) {
-        throw new ServiceException(ActivityService.class,e.getMessage(), e);
-      }
-    } else {
-      IdentityService service = ClientServiceFactoryHelper.getClientServiceFactory().createIdentityService();
-      restIdentity = (RestIdentity) service.get(this.getIdentityId());
+    try{
+      restIdentity = SocialJSONDecodingSupport.parser(RestIdentity.class, posterIdentityString);
+    } catch (Exception e) {
+      throw new ServiceException(ActivityService.class,e.getMessage(), e);
     }
     return restIdentity;
   }
@@ -397,8 +382,9 @@ public class RestActivity extends Model {
   public List<RestComment> getAvailableComments() {
     try{
       String commentsJSON = this.getFieldAsString(RestActivity.Field.COMMENTS.toString());
-      List<? extends RestComment> comments = SocialJSONDecodingSupport.JSONArrayObjectParser(RestComment.class, commentsJSON);
-      return (List<RestComment>) comments;
+      List<RestComment> restComments = SocialJSONDecodingSupport.JSONArrayObjectParser(RestComment.class, commentsJSON);
+      ServiceUtils.fillRestComments(this, restComments);
+      return (List<RestComment>) restComments;
     } catch (Exception e) {
       throw new ServiceException(ActivityService.class,e.getMessage(), e);
     }
@@ -440,28 +426,6 @@ public class RestActivity extends Model {
     return Integer.parseInt(this.getFieldAsString(RestActivity.Field.TOTAL_NUMBER_OF_COMMENTS.toString()));
   }
 
-  /**
-   * Gets the total number of comments.
-   *
-   * @return the total comment list
-   */
-  public List<RestComment> getTotalComments() throws SocialClientLibException {
-    final String GET_ACTIVITY_REQUEST_URL = SocialHttpClientSupport.buildCommonRestPathFromContext(true)+"activity/"+this.getId()+"/comments.json";
-
-
-    try{
-      HttpResponse response = SocialHttpClientSupport.executeGet(GET_ACTIVITY_REQUEST_URL, POLICY.BASIC_AUTH);
-      SocialHttpClientSupport.handleError(response);
-      String responseContent = SocialHttpClientSupport.getContent(response);
-
-      List<? extends RestComment> comments = SocialJSONDecodingSupport.JSONArrayObjectParser(RestComment.class, responseContent);
-      return (List<RestComment>)comments;
-    } catch (IOException e) {
-      throw new ServiceException(ActivityService.class,e.getMessage(), e);
-    } catch (ParseException e) {
-      throw new ServiceException(ActivityService.class,e.getMessage(), e);
-    }
-  }
   
   /**
    * Gets the number of total likes.
@@ -470,29 +434,6 @@ public class RestActivity extends Model {
    */
   public int getTotalNumberOfLikes() {
     return Integer.parseInt(this.getFieldAsString(RestActivity.Field.TOTAL_NUMBER_OF_LIKES.toString()));
-  }
-
-  /**
-   * Gets the total number of likes.
-   *
-   * @return the total like list
-   */
-  public List<RestIdentity> getTotalLikes() throws SocialClientLibException {
-    final String GET_ACTIVITY_REQUEST_URL = SocialHttpClientSupport.buildCommonRestPathFromContext(true)
-                                            + "activity/" + this.getId() + "/likes.json";
-    try {
-      HttpResponse response = SocialHttpClientSupport.executeGet(GET_ACTIVITY_REQUEST_URL, POLICY.BASIC_AUTH);
-      String responseContent = SocialHttpClientSupport.getContent(response);
-      handleError(response);
-      List<? extends RestIdentity> likedByIdentities = SocialJSONDecodingSupport.JSONArrayObjectParser(RestIdentity.class, responseContent);
-      return (List<RestIdentity>) likedByIdentities;
-    } catch (SocialHttpClientException e) {
-      throw new ServiceException(ActivityService.class,e.getMessage(), e);
-    } catch (IOException e) {
-      throw new ServiceException(ActivityService.class,e.getMessage(), e);
-    } catch (ParseException e) {
-      throw new ServiceException(ActivityService.class,e.getMessage(), e);
-    }
   }
 
   /**
@@ -510,26 +451,9 @@ public class RestActivity extends Model {
     RestActivityStream restActivityStream = null;
     try {
       // if no activity stream json is fetched, the json string is "{}"
-      if (activityStreamJSON != null && activityStreamJSON.length() > 2) {
-        restActivityStream = SocialJSONDecodingSupport.parser(RestActivityStream.class, activityStreamJSON);
-      } else {
-        final QueryParams queryParamBuilder = new QueryParamsImpl().append(QueryParams.ACTIVITY_STREAM_PARAM.setValue("t"));
-        final String GET_ACTIVITY_REQUEST_URL = SocialHttpClientSupport.buildCommonRestPathFromContext(true)
-                                                          + "activity/" + this.getId() + ".json?" + queryParamBuilder.buildQuery();
-        HttpResponse response = SocialHttpClientSupport.executeGet(GET_ACTIVITY_REQUEST_URL, POLICY.BASIC_AUTH);
-        handleError(response);
-        RestActivity activity = SocialJSONDecodingSupport.parser(RestActivity.class, response);
-        //get ActivityStream when JSON content is existing.
-        restActivityStream = activity.getActivityStream();
-
-        //caching for ActivityStreamJSON content in this RestActivity which avoid Request again.
-        this.setField(RestActivity.Field.ACTIVITY_STREAM.toString(), activity.getFieldAsString(RestActivity.Field.ACTIVITY_STREAM.toString()));
-      }
-    } catch (SocialHttpClientException e) {
-      throw new ServiceException(ActivityService.class, e.getMessage(), e);
+      restActivityStream = SocialJSONDecodingSupport.parser(RestActivityStream.class, activityStreamJSON);
+ 
     } catch (ParseException e) {
-      throw new ServiceException(ActivityService.class, e.getMessage(), e);
-    } catch (IOException e) {
       throw new ServiceException(ActivityService.class, e.getMessage(), e);
     }
     return restActivityStream;

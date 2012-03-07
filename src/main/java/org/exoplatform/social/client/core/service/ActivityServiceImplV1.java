@@ -16,6 +16,10 @@
  */
 package org.exoplatform.social.client.core.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.http.HttpResponse;
 import org.exoplatform.social.client.api.SocialClientLibException;
 import org.exoplatform.social.client.api.UnsupportedMethodException;
@@ -29,7 +33,9 @@ import org.exoplatform.social.client.api.net.SocialHttpClientException;
 import org.exoplatform.social.client.api.service.ActivityService;
 import org.exoplatform.social.client.api.service.QueryParams;
 import org.exoplatform.social.client.api.service.ServiceException;
+import org.exoplatform.social.client.api.util.SocialHttpClientSupport;
 import org.exoplatform.social.client.core.service.ActivitiesRealtimeListAccessV1.ActivityType;
+import org.exoplatform.social.client.core.service.util.ServiceUtils;
 import org.exoplatform.social.client.api.util.SocialJSONDecodingSupport;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -57,6 +63,8 @@ public class ActivityServiceImplV1 extends ServiceBase<RestActivity, ActivitySer
   public RestActivity create(RestActivity newInstance) throws SocialClientLibException {
     final String POST_ACTIVITY_REQUEST_URL = BASE_URL+"activity.json";
       try{
+        newInstance.setAvailableComments(new ArrayList<RestComment>());
+        
         HttpResponse response = executePost(POST_ACTIVITY_REQUEST_URL, POLICY.BASIC_AUTH, newInstance);
         String responseContent = getContent(response);
         handleError(response);
@@ -78,6 +86,8 @@ public class ActivityServiceImplV1 extends ServiceBase<RestActivity, ActivitySer
     final String POST_ACTIVITY_REQUEST_URL = BASE_URL+"activity.json?" + queryParams.buildQuery();
 
     try{
+      newActivity.setAvailableComments(new ArrayList<RestComment>());
+
       HttpResponse response = executePost(POST_ACTIVITY_REQUEST_URL, POLICY.BASIC_AUTH, newActivity);
       String responseContent = getContent(response);
       handleError(response);
@@ -95,12 +105,18 @@ public class ActivityServiceImplV1 extends ServiceBase<RestActivity, ActivitySer
    */
   @Override
   public RestActivity get(String uuid) throws SocialClientLibException {
-    final String GET_ACTIVITY_REQUEST_URL = BASE_URL+"activity/"+uuid+".json";
+    final QueryParams queryParamBuilder = new QueryParamsImpl().append(QueryParams.ACTIVITY_STREAM_PARAM).
+                                                                append(QueryParams.POSTER_IDENTITY_PARAM).
+                                                                append(QueryParams.NUMBER_OF_COMMENTS_PARAM).
+                                                                append(QueryParams.NUMBER_OF_LIKES_PARAM);
+    final String GET_ACTIVITY_REQUEST_URL = SocialHttpClientSupport.buildCommonRestPathFromContext(true)
+                                                      + "activity/" + uuid + ".json?" + queryParamBuilder.buildQuery();
       try{
         HttpResponse response = executeGet(GET_ACTIVITY_REQUEST_URL, POLICY.BASIC_AUTH);
         String responseContent = getContent(response);
         handleError(response);
         RestActivity restActivity = SocialJSONDecodingSupport.parser(RestActivity.class, responseContent);
+        ServiceUtils.fillRestActivity(restActivity);
         return restActivity;
       } catch (SocialHttpClientException e) {
         throw new ServiceException(ActivityServiceImplV1.class,e.getMessage(), e);
@@ -331,6 +347,50 @@ public class ActivityServiceImplV1 extends ServiceBase<RestActivity, ActivitySer
       throw new ServiceException(ActivityServiceImplV1.class, e.getMessage(), e);
     } catch (ParseException e) {
       throw new ServiceException(ActivityServiceImplV1.class, e.getMessage(), e);
+    }
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<RestComment> getTotalComments(RestActivity restActivity) throws SocialClientLibException {
+    final String GET_ACTIVITY_REQUEST_URL = SocialHttpClientSupport.buildCommonRestPathFromContext(true)+"activity/"+restActivity.getId()+"/comments.json";
+    try{
+      HttpResponse response = SocialHttpClientSupport.executeGet(GET_ACTIVITY_REQUEST_URL, POLICY.BASIC_AUTH);
+      SocialHttpClientSupport.handleError(response);
+      String responseContent = SocialHttpClientSupport.getContent(response);
+
+      List<RestComment> comments = SocialJSONDecodingSupport.JSONArrayObjectParser(RestComment.class, responseContent);
+      ServiceUtils.fillRestComments(restActivity, comments);
+      
+      return (List<RestComment>)comments;
+    } catch (IOException e) {
+      throw new ServiceException(ActivityService.class,e.getMessage(), e);
+    } catch (ParseException e) {
+      throw new ServiceException(ActivityService.class,e.getMessage(), e);
+    }
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<RestIdentity> getTotalLikes(RestActivity restActivity) throws SocialClientLibException {
+    final String GET_ACTIVITY_REQUEST_URL = SocialHttpClientSupport.buildCommonRestPathFromContext(true) +
+                                            "activity/" + restActivity.getId() + "/likes.json";
+    try {
+      HttpResponse response = SocialHttpClientSupport.executeGet(GET_ACTIVITY_REQUEST_URL, POLICY.BASIC_AUTH);
+      String responseContent = SocialHttpClientSupport.getContent(response);
+      handleError(response);
+      List<? extends RestIdentity> likedByIdentities = SocialJSONDecodingSupport.JSONArrayObjectParser(RestIdentity.class, responseContent);
+      return (List<RestIdentity>) likedByIdentities;
+    } catch (SocialHttpClientException e) {
+      throw new ServiceException(ActivityService.class,e.getMessage(), e);
+    } catch (IOException e) {
+      throw new ServiceException(ActivityService.class,e.getMessage(), e);
+    } catch (ParseException e) {
+      throw new ServiceException(ActivityService.class,e.getMessage(), e);
     }
   }
 }

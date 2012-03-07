@@ -131,6 +131,18 @@ public class ActivityImplTest {
 
     List<RestIdentity> identities = SocialJSONDecodingSupport.JSONArrayObjectParser(RestIdentity.class, actual);
     assertEquals(identities.size(), 1);
+    
+//    RestActivity restActivityLoop = new RestActivity();
+//    RestComment restComment = new RestComment();
+//    restComment.put(RestComment.Field.ACTIVITY_ID, restActivityLoop);
+//    ArrayList<RestComment> restComments = new ArrayList<RestComment>();
+//    restComments.add(restComment);
+//    restActivityLoop.put(RestActivity.Field.COMMENTS, restComments);
+//    
+//    SocialClientContext.setHost("localhost");
+//    
+//    HttpResponse response = executePost("/social/rest/create", POLICY.NO_AUTH, restActivityLoop);
+
   }
 
   @Test

@@ -22,6 +22,7 @@ import java.util.List;
 import org.exoplatform.social.client.api.SocialClientLibException;
 import org.exoplatform.social.client.api.UnsupportedMethodException;
 import org.exoplatform.social.client.api.auth.UnAuthenticatedException;
+import org.exoplatform.social.client.api.model.BaseModel;
 import org.exoplatform.social.client.api.model.RestActivity;
 import org.exoplatform.social.client.api.model.RestActivityStream;
 import org.exoplatform.social.client.api.model.RestComment;
@@ -169,7 +170,13 @@ public class ActivityServiceV1IT extends AbstractClientTestV1 {
     RestActivity resultActivity = activityService.get(activityId);
 
     assertThat("test 0", equalTo(resultActivity.getTitle()));
+    String posterIdentity = resultActivity.getFieldAsString(RestActivity.Field.POSTER_IDENTITY.toString());
+    assertThat(posterIdentity != null && posterIdentity.length() > 2, equalTo(true));
+    
+    String activityStreamString = resultActivity.getFieldAsString(RestActivity.Field.ACTIVITY_STREAM.toString());
+    assertThat(activityStreamString != null && activityStreamString.length() > 2, equalTo(true));
 
+    
     RestActivityStream activityStream = resultActivity.getActivityStream();
     assertThat(activityStream.getFullName(), equalTo("Demo gtn"));
     assertThat(activityStream.getType(), equalTo("organization"));

@@ -22,7 +22,7 @@ package org.exoplatform.social.client.api.model;
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since May 19, 2011
  */
-public class RestLike extends Model {
+public class RestLike extends BaseModel {
 
   /**
    * The fields that represent the RestLike object in json form. <p/>

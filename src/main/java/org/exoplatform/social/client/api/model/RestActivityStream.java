@@ -22,7 +22,7 @@ package org.exoplatform.social.client.api.model;
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since Jun 29, 2011
  */
-public class RestActivityStream extends Model {
+public class RestActivityStream extends BaseModel {
   /**
    * The fields that represent the RestActivityStream object in json form.
    */

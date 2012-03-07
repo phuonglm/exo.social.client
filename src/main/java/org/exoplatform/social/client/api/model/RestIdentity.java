@@ -25,7 +25,7 @@ import org.json.simple.parser.ParseException;
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since May 19, 2011
  */
-public class RestIdentity extends Model {
+public class RestIdentity extends BaseModel {
 
   /**
    * The fields that represent the Identity object in json form.

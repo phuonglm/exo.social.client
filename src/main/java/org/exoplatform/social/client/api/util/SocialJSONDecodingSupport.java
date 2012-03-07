@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.exoplatform.social.client.api.model.Model;
+import org.exoplatform.social.client.api.model.BaseModel;
 import org.exoplatform.social.client.api.net.SocialHttpClientException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
@@ -50,7 +50,7 @@ public class SocialJSONDecodingSupport {
    * @throws ParseException Throw this exception if any
    * 
    */
-  public static <T extends Model> T parser(final Class<T> clazz, String jsonContent) throws ParseException {
+  public static <T extends BaseModel> T parser(final Class<T> clazz, String jsonContent) throws ParseException {
     JSONParser parser = new JSONParser();
     ContainerFactory containerFactory = new ContainerFactory() {
       public List<T> creatArrayContainer() {
@@ -80,7 +80,7 @@ public class SocialJSONDecodingSupport {
    * @throws ParseException Throw this exception if any
    * @throws IOException Throw this exception if any
    */
-  public static <T extends Model> T parser(final Class<T> clazz, HttpResponse response) throws IOException, ParseException {
+  public static <T extends BaseModel> T parser(final Class<T> clazz, HttpResponse response) throws IOException, ParseException {
     //Read InputStream from HttpResponse to Buffered
     HttpEntity entity = SocialHttpClientSupport.processContent(response);
     //Check the content length
@@ -141,7 +141,7 @@ public class SocialJSONDecodingSupport {
    * @throws IOException
    * @throws ParseException
    */
-  public static <T extends Model > List<T> JSONArrayObjectParser(final Class<T> clazz, HttpResponse response) throws IOException, ParseException{
+  public static <T extends BaseModel > List<T> JSONArrayObjectParser(final Class<T> clazz, HttpResponse response) throws IOException, ParseException{
     //Read InputStream from HttpResponse to Buffered
     HttpEntity entity = SocialHttpClientSupport.processContent(response);
     //Check the content length
@@ -166,7 +166,7 @@ public class SocialJSONDecodingSupport {
    * @throws IOException
    * @throws ParseException
    */
-  public static <T extends Model > List<T> JSONArrayObjectParser(final Class<T> clazz, String jsonArrayContent) throws IOException, ParseException{
+  public static <T extends BaseModel > List<T> JSONArrayObjectParser(final Class<T> clazz, String jsonArrayContent) throws IOException, ParseException{
     JSONArray jsonResultArray = (JSONArray)JSONValue.parse(jsonArrayContent);
     List<T> result = new ArrayList<T>();
     for (Object jsonObject : jsonResultArray) {

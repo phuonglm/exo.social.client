@@ -28,13 +28,13 @@ public interface QueryParams {
   
   public final static QueryParamOption IDENTITY_ID_PARAM = new QueryParamOption("identity_id", null);
   
-  public final static QueryParamOption POSTER_IDENTITY_PARAM = new QueryParamOption("poster_identity", null);
+  public final static QueryParamOption POSTER_IDENTITY_PARAM = new QueryParamOption("poster_identity", "t");
   
-  public final static QueryParamOption NUMBER_OF_COMMENTS_PARAM = new QueryParamOption("number_of_comments", null);
+  public final static QueryParamOption NUMBER_OF_COMMENTS_PARAM = new QueryParamOption("number_of_comments", 10);
   
-  public final static QueryParamOption NUMBER_OF_LIKES_PARAM = new QueryParamOption("number_of_likes", null) {};
+  public final static QueryParamOption NUMBER_OF_LIKES_PARAM = new QueryParamOption("number_of_likes", 10) {};
   
-  public final static QueryParamOption ACTIVITY_STREAM_PARAM = new QueryParamOption("activity_stream", null) {};
+  public final static QueryParamOption ACTIVITY_STREAM_PARAM = new QueryParamOption("activity_stream", "t") {};
   
   public final static QueryParamOption LIMIT_PARAM = new QueryParamOption("limit", null) {};
   

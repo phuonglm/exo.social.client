@@ -19,7 +19,7 @@ package org.exoplatform.social.client.api.util;
 
 import org.exoplatform.social.client.api.event.PropertyChangeEvent;
 import org.exoplatform.social.client.api.event.PropertyChangeListener;
-import org.exoplatform.social.client.api.model.Model;
+import org.exoplatform.social.client.api.model.BaseModel;
 
 /**
  * This is a utility class that can be used by models that support bound
@@ -35,7 +35,7 @@ public final class PropertyChangeSupport {
   /**
    * The source bean for property change events that we will broadcast.
    */
-  private Model source = null;
+  private BaseModel source = null;
   /**
    * The set of registered PropertyChangeListeners for event notifications.
    */
@@ -52,7 +52,7 @@ public final class PropertyChangeSupport {
    *
    * @param source
    */
-  public PropertyChangeSupport(Model source) {
+  public PropertyChangeSupport(BaseModel source) {
     this.source = source;
   }
   

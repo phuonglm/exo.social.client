@@ -35,7 +35,7 @@ import org.json.simple.JSONStreamAware;
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since May 19, 2011
  */
-public abstract class Model extends JSONObject implements Map, JSONAware, JSONStreamAware {
+public abstract class BaseModel extends JSONObject implements Map, JSONAware, JSONStreamAware {
 
   /**
    * The property change event support for this model.

@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.client.api.service;
 
+import java.util.List;
+
 import org.exoplatform.social.client.api.SocialClientLibException;
 import org.exoplatform.social.client.api.auth.AccessDeniedException;
 import org.exoplatform.social.client.api.auth.NotFoundException;
@@ -52,8 +54,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    *
    * @param  ownerStreamRestIdentity the owner stream identity, could be a user or space identity.
    * @return the real time list access
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    */
 
 
@@ -63,8 +64,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    * @param restIdentity
    * @param queryParams
    * @return
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    * @since  1.0.0-alpha2
    */
   RealtimeListAccess<RestActivity> getActivityStream(RestIdentity restIdentity, QueryParams queryParams)
@@ -74,8 +74,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    * @param newActivity Activity
    * @param queryParams the query params
    * @return
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    * @since  1.0.0-alpha2
    */
   RestActivity create(RestActivity newActivity, QueryParams queryParams) throws SocialClientLibException;
@@ -86,8 +85,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    *
    * @param userRestIdentity the associated user identity
    * @return the real time list access
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    */
   RealtimeListAccess<Activity> getSpacesActivityStream(RestIdentity userRestIdentity) throws SocialClientLibException;
 
@@ -98,8 +96,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    * @param restIdentity
    * @param queryParams
    * @return
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    * @since  1.0.0-alpha2
    */
   RealtimeListAccess<RestActivity> getSpacesActivityStream(RestIdentity restIdentity, QueryParams queryParams)
@@ -110,8 +107,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    *
    * @param userRestIdentity the associated user identity
    * @return the real time list access
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    */
   RealtimeListAccess<Activity> getConnectionsActivityStream(RestIdentity userRestIdentity) throws SocialClientLibException;
 
@@ -120,8 +116,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    * @param restIdentity
    * @param queryParams
    * @return
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    * @since  1.0.0-alpha2
    */
   RealtimeListAccess<RestActivity> getConnectionsActivityStream(RestIdentity restIdentity, QueryParams queryParams)
@@ -132,8 +127,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    *
    * @param userRestIdentity the associated user identity
    * @return the realtime list access
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    */
   RealtimeListAccess<Activity> getFeedActivityStream(RestIdentity userRestIdentity) throws SocialClientLibException;
 
@@ -143,8 +137,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    * @param restIdentity
    * @param queryParams
    * @return
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    * @since  1.0.0-alpha2
    */
   RealtimeListAccess<RestActivity> getFeedActivityStream(RestIdentity restIdentity, QueryParams queryParams)
@@ -156,8 +149,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    * @param existingActivity the existing activity
    * @param newRestComment       the new created comment
    * @return the created comment
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    */
   RestComment createComment(Activity existingActivity, RestComment newRestComment) throws SocialClientLibException;
 
@@ -166,8 +158,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    *
    * @param commentId the comment id
    * @return the existing comment with the specified id
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    */
   RestComment getComment(String commentId) throws SocialClientLibException;
 
@@ -187,8 +178,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    *
    * @param existingActivity the existing activity
    * @return the created {@link org.exoplatform.social.client.api.model.RestLike} instance
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    */
   RestLike like(Activity existingActivity) throws SocialClientLibException;
 
@@ -197,8 +187,7 @@ public interface ActivityService<Activity> extends Service<Activity> {
    *
    * @param existingActivity the existing activity
    * @return the deleted {@link org.exoplatform.social.client.api.model.RestLike} instance.
-   * @throws AccessDeniedException
-   * @throws ServiceException
+   * @throws SocialClientLibException
    */
   RestLike unlike(Activity existingActivity) throws SocialClientLibException;
 
@@ -207,9 +196,27 @@ public interface ActivityService<Activity> extends Service<Activity> {
    * @param activityId the activityId
    * @param queryParams the query params
    * @return an existing instance
-   * @throws AccessDeniedException
-   * @throws ServiceException
-   * @since v1-alpha2
+   * @throws SocialClientLibException
+   * @since 1.0.0-alpha2
    */
   Activity get(String activityId, QueryParams queryParams) throws SocialClientLibException;
+  
+  /**
+   * Gets the upto 100 comment of restActivity.
+   * @param restActivity
+   * @return
+   * @throws SocialClientLibException
+   * @since v1
+   */
+  public List<RestComment> getTotalComments(RestActivity restActivity) throws SocialClientLibException;
+  
+  /**
+   * Gets the 100 Liked Identity of restActivity.
+   * @param restActivity
+   * @return
+   * @throws SocialClientLibException
+   * @since v1
+   */
+  public List<RestIdentity> getTotalLikes(RestActivity restActivity) throws SocialClientLibException;
+  
 }

@@ -28,11 +28,11 @@ import org.exoplatform.social.client.api.event.LifecycleEvent;
 import org.exoplatform.social.client.api.event.LifecycleListener;
 import org.exoplatform.social.client.api.event.PropertyChangeEvent;
 import org.exoplatform.social.client.api.event.PropertyChangeListener;
-import org.exoplatform.social.client.api.model.Model;
+import org.exoplatform.social.client.api.model.BaseModel;
 
 public abstract class AbstractLifecycleTest {
 
-  protected Model mockModel = null;
+  protected BaseModel mockModel = null;
   protected ServiceBase<MockModel, MockService> mockService = null;
   protected MockLifecycleListener captureLifecycle = null;
   protected MockCRUDLifecycleListener captureCRUDLifecycle = null;

@@ -42,7 +42,7 @@ import org.exoplatform.social.client.api.SocialClientLibException;
 import org.exoplatform.social.client.api.auth.AccessDeniedException;
 import org.exoplatform.social.client.api.auth.NotFoundException;
 import org.exoplatform.social.client.api.auth.UnAuthenticatedException;
-import org.exoplatform.social.client.api.model.Model;
+import org.exoplatform.social.client.api.model.BaseModel;
 import org.exoplatform.social.client.api.net.SocialHttpClient;
 import org.exoplatform.social.client.api.net.SocialHttpClient.POLICY;
 import org.exoplatform.social.client.api.net.SocialHttpClientException;
@@ -121,7 +121,7 @@ public class SocialHttpClientSupport {
    * @throws IOException
    * @throws ClientProtocolException
    */
-  public static HttpResponse executePost(String targetURL, POLICY authPolicy, HttpParams params, Model model) throws SocialHttpClientException {
+  public static HttpResponse executePost(String targetURL, POLICY authPolicy, HttpParams params, BaseModel model) throws SocialHttpClientException {
     HttpHost targetHost = new HttpHost(SocialClientContext.getHost(), SocialClientContext.getPort(), SocialClientContext.getProtocol()); 
     SocialHttpClient httpClient = SocialHttpClientImpl.newInstance();
 
@@ -186,7 +186,7 @@ public class SocialHttpClientSupport {
    * @throws IOException 
    * @throws ClientProtocolException 
    */
-  public static HttpResponse executePost(String targetURL, POLICY authPolicy, Model model) throws SocialHttpClientException {
+  public static HttpResponse executePost(String targetURL, POLICY authPolicy, BaseModel model) throws SocialHttpClientException {
     return executePost(targetURL, authPolicy, null, model);
   }
 
@@ -269,7 +269,7 @@ public class SocialHttpClientSupport {
    * @return
    * @throws IOException
    */
-  public static byte[] convertModelToByteArray(Model model) throws IOException {
+  public static byte[] convertModelToByteArray(BaseModel model) throws IOException {
     if (model == null) {
       return null;
     }

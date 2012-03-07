@@ -16,10 +16,10 @@
  */
 package org.exoplatform.social.client.core.service;
 
-import org.exoplatform.social.client.api.model.Model;
+import org.exoplatform.social.client.api.model.BaseModel;
 
 
-public class MockModel extends Model {
+public class MockModel extends BaseModel {
   /**
    * 
    */
