@@ -451,6 +451,147 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>run-its-debug</id>
+      <properties>
+        <maven.failsafe.debug>true</maven.failsafe.debug>
+      </properties>
+      <build>
+        <plugins>
+          <!-- Unpack the app server - if cargo used -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>${maven-dependency-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>unpack</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <skip>${it.cargo.skip}</skip>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.exoplatform.social</groupId>
+                      <artifactId>exo.social.packaging.pkg</artifactId>
+                      <version>${social.server.version}</version>
+                      <classifier>tomcat</classifier>
+                      <type>zip</type>
+                      <overWrite>false</overWrite>
+                      <outputDirectory>${project.build.directory}/social-server/</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Patch the server config to set ports - if cargo used -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-patch-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>patch</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>apply</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <patches>
+                <patch>server.xml.patch</patch>
+              </patches>
+              <targetDirectory>${project.build.directory}/social-server/eXoSocial-${social.server.version}/conf/</targetDirectory>
+              <skipApplication>${it.cargo.skip}</skipApplication>
+            </configuration>
+          </plugin>
+          <!-- Start/Stop the social server used for tests -->
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <skip>${it.cargo.skip}</skip>
+              <!-- Container configuration -->
+              <container>
+                <containerId>tomcat6x</containerId>
+                <home>${project.build.directory}/social-server/eXoSocial-${social.server.version}/</home>
+                <type>installed</type>
+                <timeout>240000</timeout>
+                <systemProperties>
+                  <java.util.logging.manager>org.apache.juli.ClassLoaderLogManager</java.util.logging.manager>
+                  <java.util.logging.config.file>${project.build.directory}/social-server/eXoSocial-${social.server.version}/conf/logging.properties</java.util.logging.config.file>
+                  <org.apache.commons.logging.Log>org.apache.commons.logging.impl.SimpleLog</org.apache.commons.logging.Log>
+                  <java.security.auth.login.config>${project.build.directory}/social-server/eXoSocial-${social.server.version}/conf/jaas.conf</java.security.auth.login.config>
+                  <exo.product.developing>false</exo.product.developing>
+                  <exo.conf.dir.name>gatein/conf</exo.conf.dir.name>
+                  <!-- These 2 properties below are configured by Social 1.2.x and 1.3.x's configuration file -->
+                  <gatein.gadgets.securityTokenKeyFile>${project.build.directory}/social-server/eXoSocial-${social.server.version}/gatein/conf/gadgets/key.txt</gatein.gadgets.securityTokenKeyFile>
+                  <gatein.gadgets.signingKeyFile>${project.build.directory}/social-server/eXoSocial-${social.server.version}/gatein/conf/gadgets/oauthkey.pem</gatein.gadgets.signingKeyFile>
+                  <!-- Controller configuration -->
+                  <gatein.portal.controller.config>${project.build.directory}/social-server/eXoSocial-${social.server.version}/gatein/conf/controller.xml</gatein.portal.controller.config>
+                  <!-- Ports to be used by the server -->
+                  <social.server.http.port>${social.server.http.port}</social.server.http.port>
+                  <social.server.ajp.port>${social.server.ajp.port}</social.server.ajp.port>
+                  <social.server.shutdown.port>${social.server.shutdown.port}</social.server.shutdown.port>
+                </systemProperties>
+              </container>
+              <!-- Configuration to use with the container -->
+              <configuration>
+                <type>existing</type>
+                <home>${project.build.directory}/social-server/eXoSocial-${social.server.version}/</home>
+                <properties>
+                  <cargo.servlet.port>${social.server.http.port}</cargo.servlet.port>
+                  <cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5006 -Xms128m -Xmx512m -XX:MaxPermSize=256m</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>
+          </plugin>
+          <!-- Execute integration tests -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <social.server.host>${social.server.host}</social.server.host>
+                <social.server.port>${social.server.http.port}</social.server.port>
+              </systemPropertyVariables>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test</id>
+                <goals>
+                  <goal>integration-test</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>verify</id>
+                <goals>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>    
   </profiles>
-
 </project>

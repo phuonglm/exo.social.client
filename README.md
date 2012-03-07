@@ -92,6 +92,10 @@ You can change the version by adding the following parameter in the command line
 
     -Dsocial.server.version=1.3.0-SNAPSHOT
 
+### Integration tests and debug using remote debuger
+    mvn clean install -Prun-its-debug
+    The social server with listen on port 5006 and maven integration test process listen on port 5005, it'll wait until you attached remote debugger to continue execute the test.
+    
 ### Integration tests with a social server already deployed
 
 Or you can run integration tests against a social server already deployed on your network. This solution is quickest to execute but requires an initial setup of a social server. You need to define the host and port of the server to use. To launch tests on an existing server launch the following command :
